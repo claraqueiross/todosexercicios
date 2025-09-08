@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Validador de Gmail</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        input, button { padding: 8px; font-size: 16px; }
+        #mensagem { margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Validador de E-mail Gmail</h2>
+    <input type="text" id="email" placeholder="Digite seu Gmail">
+    <button onclick="validarGmail()">Validar</button>
+    <div id="mensagem"></div>
+
+    <script>
+        function validarGmail() {
+            const email = document.getElementById("email").value;
+            const mensagem = document.getElementById("mensagem");
+
+            // Expressão regular para validar Gmail
+            const regex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+            if (regex.test(email)) {
+                mensagem.textContent = "E-mail Gmail válido!";
+                mensagem.style.color = "green";
+            } else {
+                mensagem.textContent = "E-mail inválido ou não é do domínio @gmail.com.";
+                mensagem.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>
