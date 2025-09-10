@@ -74,7 +74,40 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
 <script>
 (() => {
-  // Configurações iniciais
+  // --- ÁUDIO da buzina ---
+  const luansom = new Audio('luansom.mp3');
+  luansom.preload = 'auto';
+  luansom.loop = true;
+
+  let spacePressed = false;
+  let audioStarted = false;
+
+  luansom.addEventListener('canplaythrough', () => {
+    console.log('Áudio "luansom" carregado.');
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !spacePressed) {
+      spacePressed = true;
+      if (!audioStarted) {
+        luansom.currentTime = 50; // começa em 0:50
+        audioStarted = true;
+      }
+      luansom.play().catch(err => console.log('Erro no play:', err));
+      e.preventDefault();
+    }
+  });
+
+  window.addEventListener('keyup', (e) => {
+    if (e.code === 'Space') {
+      spacePressed = false;
+      luansom.pause();
+      // NÃO resetar currentTime para evitar pipocadas
+      e.preventDefault();
+    }
+  });
+
+  // --- Configurações iniciais do Three.js e jogo ---
   const scene = new THREE.Scene();
 
   // Cores para fundo espacial em fases
@@ -269,6 +302,14 @@
         finalScoreText.textContent = points;
         gameOverDiv.style.display = 'block';
         clearInterval(spawnTimer);
+
+        // Para o som se o jogo acabar
+        if (!luansom.paused) {
+          luansom.pause();
+          spacePressed = false;
+          audioStarted = false;
+          luansom.currentTime = 0;
+        }
       }
     }
 
