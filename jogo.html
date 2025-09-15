@@ -79,32 +79,14 @@
   luansom.preload = 'auto';
   luansom.loop = true;
 
-  let spacePressed = false;
-  let audioStarted = false;
-
+  // Tenta tocar assim que carregar o áudio
   luansom.addEventListener('canplaythrough', () => {
     console.log('Áudio "luansom" carregado.');
-  });
-
-  window.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && !spacePressed) {
-      spacePressed = true;
-      if (!audioStarted) {
-        luansom.currentTime = 50; // começa em 0:50
-        audioStarted = true;
-      }
-      luansom.play().catch(err => console.log('Erro no play:', err));
-      e.preventDefault();
-    }
-  });
-
-  window.addEventListener('keyup', (e) => {
-    if (e.code === 'Space') {
-      spacePressed = false;
-      luansom.pause();
-      // NÃO resetar currentTime para evitar pipocadas
-      e.preventDefault();
-    }
+    luansom.currentTime = 50; // começa em 0:50
+    luansom.play().catch(err => {
+      console.log('Erro ao tentar autoplay:', err);
+      // Se navegador bloquear autoplay, pode tentar tocar no clique do usuário ou deixar parado
+    });
   });
 
   // --- Configurações iniciais do Three.js e jogo ---
@@ -264,6 +246,12 @@
     gameOverDiv.style.display = 'none';
     spawnTimer = setInterval(spawnAsteroid, 1400);
     animate();
+
+    // Também reinicia a música no retry
+    luansom.currentTime = 50;
+    luansom.play().catch(err => {
+      console.log('Erro ao tentar autoplay após retry:', err);
+    });
   });
 
   // Animação e loop principal
@@ -306,8 +294,6 @@
         // Para o som se o jogo acabar
         if (!luansom.paused) {
           luansom.pause();
-          spacePressed = false;
-          audioStarted = false;
           luansom.currentTime = 0;
         }
       }
