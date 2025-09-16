@@ -76,26 +76,25 @@
 (() => {
   // --- ÁUDIO da buzina ---
   const luansom = new Audio('https://raw.githubusercontent.com/claraqueiross/todosexercicios/main/luansom.mp3');
-  luansom.preload = 'auto';
   luansom.loop = true;
+  luansom.volume = 0.8;
 
-  let spacePressed = false;
+  function playAudio() {
+    luansom.play().catch(() => {
+      // Se autoplay bloqueado, esperar interação do usuário
+      function userInteract() {
+        luansom.play();
+        window.removeEventListener('click', userInteract);
+        window.removeEventListener('keydown', userInteract);
+        window.removeEventListener('touchstart', userInteract);
+      }
+      window.addEventListener('click', userInteract);
+      window.addEventListener('keydown', userInteract);
+      window.addEventListener('touchstart', userInteract);
+    });
+  }
 
-  window.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && !spacePressed) {
-      spacePressed = true;
-      luansom.play().catch(err => console.log('Erro no play:', err));
-      e.preventDefault();
-    }
-  });
-
-  window.addEventListener('keyup', (e) => {
-    if (e.code === 'Space') {
-      spacePressed = false;
-      luansom.pause();
-      e.preventDefault();
-    }
-  });
+  window.addEventListener('load', playAudio);
 
   // --- Configurações iniciais do Three.js e jogo ---
   const scene = new THREE.Scene();
@@ -279,3 +278,39 @@
 
       // Remove asteroides que passaram da nave
       if (ast.position.z > 20) {
+        scene.remove(ast);
+        asteroids.splice(i, 1);
+        points++;
+        scoreText.textContent = points;
+        updateSpaceTheme();
+      }
+
+      // Detecta colisão
+      if (detectCollision(ast, playerShip)) {
+        isGameOver = true;
+        finalScoreText.textContent = points;
+        gameOverDiv.style.display = 'block';
+        clearInterval(spawnTimer);
+      }
+    }
+
+    renderer.render(scene, cam);
+  }
+
+  // Define fundo inicial
+  scene.background = new THREE.Color(spaceThemes[0].bgColor);
+
+  animate();
+
+  // Ajusta o tamanho do canvas ao redimensionar a janela
+  window.addEventListener('resize', () => {
+    cam.aspect = window.innerWidth / window.innerHeight;
+    cam.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+})();
+</script>
+
+</body>
+</html>
